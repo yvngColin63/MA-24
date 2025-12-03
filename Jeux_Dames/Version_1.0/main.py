@@ -6,9 +6,12 @@ import os
 pygame.init()
 
 # Constants
-WIDTH, HEIGHT = 700, 700
+BOARD_SIZE = 700
+HEADER_HEIGHT = 60  # Space for turn indicator above the board
+WIDTH = BOARD_SIZE
+HEIGHT = BOARD_SIZE + HEADER_HEIGHT  # Total window height
 ROWS, COLS = 10, 10  # 10x10 for international checkers
-SQUARE_SIZE = WIDTH // COLS
+SQUARE_SIZE = BOARD_SIZE // COLS
 MENU_HEIGHT = 60
 
 # Colors
@@ -81,7 +84,7 @@ class Piece:
 
     def calc_pos(self):
         self.x = SQUARE_SIZE * self.col + SQUARE_SIZE // 2
-        self.y = SQUARE_SIZE * self.row + SQUARE_SIZE // 2
+        self.y = HEADER_HEIGHT + SQUARE_SIZE * self.row + SQUARE_SIZE // 2
 
     def make_king(self):
         self.king = True
@@ -130,7 +133,7 @@ class Board:
                 # Cases noires où (row + col) est impair
                 if (row + col) % 2 == 1:
                     pygame.draw.rect(win, BOARD_THEME["dark"], 
-                                   (col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+                                   (col * SQUARE_SIZE, HEADER_HEIGHT + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
 
     def create_board(self):
         self.board = []
@@ -476,21 +479,25 @@ class Game:
         """Highlight the selected piece"""
         if self.selected:
             pygame.draw.rect(self.win, (255, 255, 0), 
-                           (self.selected.col * SQUARE_SIZE, self.selected.row * SQUARE_SIZE,
+                           (self.selected.col * SQUARE_SIZE, HEADER_HEIGHT + self.selected.row * SQUARE_SIZE,
                             SQUARE_SIZE, SQUARE_SIZE), 4)
 
     def draw_turn_indicator(self):
+        # Draw header background
+        pygame.draw.rect(self.win, (40, 40, 60), (0, 0, WIDTH, HEADER_HEIGHT))
+        
         font = pygame.font.SysFont('arial', 22, bold=True)
         turn_text = "Tour: GRIS" if self.turn == 'grey' else "Tour: BLEU"
-        text = font.render(turn_text, True, WHITE)
+        turn_color = GREY if self.turn == 'grey' else (100, 100, 255)
+        text = font.render(turn_text, True, turn_color)
         
         # Score
         score_text = f"Gris: {self.board.grey_left} | Bleu: {self.board.blue_left}"
         score = font.render(score_text, True, WHITE)
         
-        pygame.draw.rect(self.win, BLACK, (5, 5, max(text.get_width(), score.get_width()) + 20, 55))
-        self.win.blit(text, (15, 8))
-        self.win.blit(score, (15, 32))
+        # Center the text in the header
+        self.win.blit(text, (15, 10))
+        self.win.blit(score, (15, 35))
 
     def winner(self):
         return self.board.winner()
@@ -530,7 +537,7 @@ class Game:
             color = (255, 100, 100) if skipped else GREEN  # Red tint for captures
             pygame.draw.circle(self.win, color, 
                              (col * SQUARE_SIZE + SQUARE_SIZE // 2, 
-                              row * SQUARE_SIZE + SQUARE_SIZE // 2), 12)
+                              HEADER_HEIGHT + row * SQUARE_SIZE + SQUARE_SIZE // 2), 12)
 
     def change_turn(self):
         self.valid_moves = {}
@@ -615,7 +622,7 @@ class Menu:
 
 def get_row_col_from_mouse(pos):
     x, y = pos
-    row = y // SQUARE_SIZE
+    row = (y - HEADER_HEIGHT) // SQUARE_SIZE
     col = x // SQUARE_SIZE
     return row, col
 
@@ -625,18 +632,19 @@ def show_winner(win, winner):
     color = (50, 50, 200) if winner == "BLEU" else (100, 100, 100)
     text = font.render(f"{winner} GAGNE!", True, color)
     
-    # Background rectangle
+    # Background rectangle (centered on board area, not header)
+    board_center_y = HEADER_HEIGHT + BOARD_SIZE // 2
     rect = pygame.Rect(WIDTH // 2 - text.get_width() // 2 - 30, 
-                       HEIGHT // 2 - text.get_height() // 2 - 30,
+                       board_center_y - text.get_height() // 2 - 30,
                        text.get_width() + 60, text.get_height() + 80)
     pygame.draw.rect(win, BLACK, rect, border_radius=15)
     pygame.draw.rect(win, WHITE, rect, 3, border_radius=15)
-    win.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2 - text.get_height() // 2 - 10))
+    win.blit(text, (WIDTH // 2 - text.get_width() // 2, board_center_y - text.get_height() // 2 - 10))
     
     # Restart instruction
     font_small = pygame.font.SysFont('arial', 20)
     restart_text = font_small.render("R: Recommencer | M: Menu | Q: Quitter", True, WHITE)
-    win.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, HEIGHT // 2 + 25))
+    win.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, board_center_y + 25))
     
     pygame.display.update()
 

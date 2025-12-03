@@ -1,3 +1,5 @@
 1) Écris un code Python complet avec Pygame pour un jeu de dames avec un plateau 10x10 respectant les règles officielles. Le plateau doit être identique à l’image fournie (noir/blanc), et les pions et reines doivent utiliser les images envoyées ci-dessus. Ajoute un menu avec Start Game, changement de couleur du plateau et Quitter. Assure-toi que les reines se déplacent correctement dans toutes les directions et que la promotion fonctionne. Structure le code en classes et rends-le prêt à exécuter., (Les images sont sur le dossier image)
 
 drawIO:  je veux que tu me modifie le Schema.drawio en fonction du code 
+
+Le text  Tour: GRIS ect.. en noir cachent certains pions ils faut aure une marge pour que ça ne cache aucun pions ni case pour que le plateau sois bien visible
