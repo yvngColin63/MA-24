@@ -1,0 +1,407 @@
+<mxfile host="Electron" agent="Mozilla/5.0" version="28.2.8">
+  <diagram name="Architecture" id="architecture-diagram">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- TITRE PRINCIPAL -->
+        <mxCell id="title" value="Jeu de Dames International (10x10) - Architecture" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=20;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="400" y="20" width="400" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- SECTION CLASSES PRINCIPALES -->
+        <mxCell id="classes-title" value="Classes Principales" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="150" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ImageLoader -->
+        <mxCell id="imageloader" value="ImageLoader&#xa;&#xa;- load_images()&#xa;- get_image(type, is_king)" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="40" y="100" width="160" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Piece -->
+        <mxCell id="piece" value="Piece&#xa;&#xa;- row, col, color&#xa;- king (bool)&#xa;- draw(), move()&#xa;- make_king()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="220" y="100" width="160" height="100" as="geometry" />
+        </mxCell>
+
+        <!-- Board -->
+        <mxCell id="board" value="Board&#xa;&#xa;- board[10][10]&#xa;- grey_left, blue_left&#xa;- create_board()&#xa;- get_valid_moves()&#xa;- _get_pawn_moves()&#xa;- _get_queen_moves()&#xa;- move(), remove()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="400" y="100" width="180" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- Game -->
+        <mxCell id="game" value="Game&#xa;&#xa;- selected, turn&#xa;- valid_moves&#xa;- select(), _move()&#xa;- change_turn()&#xa;- winner()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="600" y="100" width="160" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Menu -->
+        <mxCell id="menu" value="Menu&#xa;&#xa;- buttons[]&#xa;- draw()&#xa;- handle_click()" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=5" vertex="1" parent="1">
+          <mxGeometry x="780" y="100" width="140" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Arrows between classes -->
+        <mxCell id="arrow1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="imageloader" target="piece">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="piece" target="board">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="board" target="game">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="arrow4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="menu" target="game">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- SECTION FLUX DE JEU -->
+        <mxCell id="flow-title" value="Flux de Jeu" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="270" width="150" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- Menu State -->
+        <mxCell id="flow-menu" value="Menu Principal" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="40" y="310" width="100" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Start Game -->
+        <mxCell id="flow-start" value="Démarrer Partie" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="170" y="320" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Select Piece -->
+        <mxCell id="flow-select" value="Sélectionner Pion" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="300" y="320" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Show Moves -->
+        <mxCell id="flow-moves" value="Afficher Coups Valides" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="430" y="320" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Move Decision -->
+        <mxCell id="flow-decision" value="Capture obligatoire?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="580" y="300" width="120" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Execute Move -->
+        <mxCell id="flow-execute" value="Exécuter Déplacement" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="730" y="320" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Capture -->
+        <mxCell id="flow-capture" value="Capturer Pion(s)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="580" y="410" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Promotion Check -->
+        <mxCell id="flow-promo" value="Promotion en Reine?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="870" y="300" width="110" height="80" as="geometry" />
+        </mxCell>
+
+        <!-- Make King -->
+        <mxCell id="flow-king" value="Transformer en Reine" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6" vertex="1" parent="1">
+          <mxGeometry x="865" y="410" width="120" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Change Turn -->
+        <mxCell id="flow-turn" value="Changer de Tour" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="1000" y="320" width="100" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Winner Check -->
+        <mxCell id="flow-winner" value="Gagnant?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="1120" y="305" width="90" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- End Game -->
+        <mxCell id="flow-end" value="Fin de Partie" style="ellipse;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="1230" y="310" width="100" height="60" as="geometry" />
+        </mxCell>
+
+        <!-- Flow arrows -->
+        <mxCell id="fa1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-menu" target="flow-start">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-start" target="flow-select">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-select" target="flow-moves">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-moves" target="flow-decision">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa5" value="Non" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-decision" target="flow-execute">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa6" value="Oui" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-decision" target="flow-capture">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-capture" target="flow-execute">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="720" y="430" />
+              <mxPoint x="720" y="380" />
+              <mxPoint x="790" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fa8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-execute" target="flow-promo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa9" value="Oui" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-promo" target="flow-king">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa10" value="Non" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-promo" target="flow-turn">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-king" target="flow-turn">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1050" y="430" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="fa12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-turn" target="flow-winner">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa13" value="Oui" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic" edge="1" parent="1" source="flow-winner" target="flow-end">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="fa14" value="Non" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=classic;exitX=0.5;exitY=0;exitDx=0;exitDy=0" edge="1" parent="1" source="flow-winner" target="flow-select">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1165" y="280" />
+              <mxPoint x="350" y="280" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- SECTION REGLES PION -->
+        <mxCell id="pawn-title" value="Règles du Pion" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="490" width="150" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontColor=#333333" vertex="1" parent="1">
+          <mxGeometry x="40" y="520" width="400" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-move-title" value="Déplacement Simple" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="530" width="150" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-move1" value="• Avance en diagonale AVANT uniquement" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="50" y="550" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-move2" value="• Une seule case à la fois" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="50" y="570" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-move3" value="• Ne peut JAMAIS reculer" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="50" y="590" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-cap-title" value="Capture" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="50" y="620" width="150" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-cap1" value="• Capture OBLIGATOIRE si possible" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="50" y="640" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-cap2" value="• Peut capturer AVANT et ARRIÈRE" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="50" y="660" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-cap3" value="• Saute par-dessus le pion adverse" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="50" y="680" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="pawn-cap4" value="• Captures multiples OBLIGATOIRES" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="50" y="700" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Pawn diagram -->
+        <mxCell id="pawn-diagram" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="310" y="570" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="pawn-piece" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#808080;strokeColor=#666666" vertex="1" parent="1">
+          <mxGeometry x="320" y="580" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="pawn-arrow1" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#00CC00;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="330" y="575" as="sourcePoint" />
+            <mxPoint x="290" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pawn-arrow2" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#00CC00;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="330" y="575" as="sourcePoint" />
+            <mxPoint x="370" y="540" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="pawn-label" value="Gris: ↑" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="300" y="620" width="60" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- SECTION REGLES REINE -->
+        <mxCell id="queen-title" value="Règles de la Reine (Dame)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="480" y="490" width="200" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e1d5e7;strokeColor=#9673a6" vertex="1" parent="1">
+          <mxGeometry x="480" y="520" width="400" height="200" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-move-title" value="Déplacement" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="490" y="530" width="150" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-move1" value="• Diagonale dans les 4 directions" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="490" y="550" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-move2" value="• Plusieurs cases tant que chemin libre" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="490" y="570" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-move3" value="• S'arrête sur n'importe quelle case libre" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="490" y="590" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-cap-title" value="Capture" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="490" y="620" width="150" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-cap1" value="• Capture OBLIGATOIRE si possible" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="490" y="640" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-cap2" value="• Capture à distance sur la diagonale" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="490" y="660" width="250" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-cap3" value="• Atterrit sur n'importe quelle case après" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="490" y="680" width="270" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="queen-cap4" value="• Captures multiples avec changement de diagonale" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="490" y="700" width="300" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- Queen diagram -->
+        <mxCell id="queen-diagram" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#000000" vertex="1" parent="1">
+          <mxGeometry x="780" y="570" width="40" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="queen-piece" value="R" style="ellipse;whiteSpace=wrap;html=1;fillColor=#808080;strokeColor=#666666;fontColor=#FFFFFF;fontSize=10;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="790" y="580" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="queen-arrow1" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673a6;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="575" as="sourcePoint" />
+            <mxPoint x="760" y="535" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="queen-arrow2" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673a6;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="575" as="sourcePoint" />
+            <mxPoint x="840" y="535" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="queen-arrow3" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673a6;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="615" as="sourcePoint" />
+            <mxPoint x="760" y="655" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="queen-arrow4" value="" style="endArrow=classic;html=1;rounded=0;strokeColor=#9673a6;strokeWidth=2" edge="1" parent="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="800" y="615" as="sourcePoint" />
+            <mxPoint x="840" y="655" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="queen-label" value="4 directions" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="770" y="660" width="60" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- SECTION PROMOTION -->
+        <mxCell id="promo-title" value="Promotion en Reine" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="920" y="490" width="200" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="promo-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="920" y="520" width="250" height="100" as="geometry" />
+        </mxCell>
+
+        <mxCell id="promo1" value="• Bleu: atteint la rangée 9 (bas)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="930" y="540" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="promo2" value="• Gris: atteint la rangée 0 (haut)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="930" y="560" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="promo3" value="• Transformation automatique" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="930" y="580" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="promo4" value="• Image change (reine bleu/gris)" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="930" y="600" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- SECTION FIN DE PARTIE -->
+        <mxCell id="end-title" value="Condition de Victoire" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=14;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="920" y="640" width="200" height="30" as="geometry" />
+        </mxCell>
+
+        <mxCell id="end-box" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="920" y="670" width="250" height="50" as="geometry" />
+        </mxCell>
+
+        <mxCell id="end1" value="• Un joueur n'a plus de pions" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="930" y="680" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="end2" value="• L'adversaire gagne" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11" vertex="1" parent="1">
+          <mxGeometry x="930" y="700" width="200" height="20" as="geometry" />
+        </mxCell>
+
+        <!-- LEGEND -->
+        <mxCell id="legend-title" value="Légende" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=12;fontStyle=1" vertex="1" parent="1">
+          <mxGeometry x="40" y="750" width="100" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend1" value="" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366" vertex="1" parent="1">
+          <mxGeometry x="40" y="780" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend1-text" value="Début/Fin" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="65" y="780" width="60" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf" vertex="1" parent="1">
+          <mxGeometry x="130" y="780" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend2-text" value="Action" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="155" y="780" width="50" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend3" value="" style="rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656" vertex="1" parent="1">
+          <mxGeometry x="210" y="775" width="30" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="legend3-text" value="Décision" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="245" y="780" width="60" height="20" as="geometry" />
+        </mxCell>
+
+        <mxCell id="legend4" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#f8cecc;strokeColor=#b85450" vertex="1" parent="1">
+          <mxGeometry x="310" y="780" width="20" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="legend4-text" value="Capture" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=10" vertex="1" parent="1">
+          <mxGeometry x="335" y="780" width="50" height="20" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
