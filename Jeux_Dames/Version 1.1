@@ -1,0 +1,685 @@
+#main.py
+#auteur: Matthieu-Geronimo Kaufnann, Colin Banderet
+#10.12.2025
+#version 1.1
+
+
+import pygame
+import sys
+import os
+
+# Lance pygame
+pygame.init()
+
+# Paramètres du jeu
+BOARD_SIZE = 700  # Largeur/hauteur du plateau en pixels
+HEADER_HEIGHT = 60  # Espace pour montrer à qui c'est le tour
+WIDTH = BOARD_SIZE
+HEIGHT = BOARD_SIZE + HEADER_HEIGHT  # Hauteur de la fenêtre
+ROWS, COLS = 10, 10  # Plateau 10x10
+SQUARE_SIZE = BOARD_SIZE // COLS  # Taille d'une case
+MENU_HEIGHT = 60  # Hauteur du menu
+
+# Les couleurs qu'on utilise
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GREY = (128, 128, 128)
+GREEN = (0, 200, 0)
+DARK_GREEN = (0, 100, 0)
+BEIGE = (245, 222, 179)
+DARK_BROWN = (101, 67, 33)
+LIGHT_WOOD = (222, 184, 135)
+DARK_WOOD = (139, 90, 43)
+
+# Le plateau c'est noir et blanc
+BOARD_THEME = {"light": WHITE, "dark": BLACK}
+
+# Récupère le dossier du script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+# Les images sont dans le dossier "image"
+IMAGE_DIR = os.path.join(os.path.dirname(BASE_DIR), "image")
+
+
+class ImageLoader:
+    """Charge les images du jeu"""
+    # Charge toutes les images au démarrage
+    def __init__(self):
+        self.images = {}
+        self.load_images()
+    
+    # Lit et redimensionne les images
+    def load_images(self):
+        try:
+            # Charge les images des pièces
+            self.images['pion_bleu'] = pygame.image.load(os.path.join(IMAGE_DIR, "pion bleu.png"))
+            self.images['pion_gris'] = pygame.image.load(os.path.join(IMAGE_DIR, "pion gris.png"))
+            self.images['reine_bleu'] = pygame.image.load(os.path.join(IMAGE_DIR, "reine bleu.png"))
+            self.images['reine_gris'] = pygame.image.load(os.path.join(IMAGE_DIR, "reine gris.png"))
+            
+            # Redimensionne les images
+            piece_size = int(SQUARE_SIZE * 0.8)
+            for key in self.images:
+                self.images[key] = pygame.transform.smoothscale(self.images[key], (piece_size, piece_size))
+                
+            self.images_loaded = True
+        except Exception as e:
+            print(f"Warning: Could not load images: {e}")
+            self.images_loaded = False
+    
+    # Retourne l'image d'une pièce (dame ou pion)
+    def get_image(self, piece_type, is_king):
+        if not self.images_loaded:
+            return None
+        
+        if piece_type == 'blue':
+            return self.images['reine_bleu'] if is_king else self.images['pion_bleu']
+        else:  # gris
+            return self.images['reine_gris'] if is_king else self.images['pion_gris']
+
+
+class Piece:
+    """Une pièce du jeu (pion ou dame)"""
+    def __init__(self, row, col, color, image_loader):
+        # Crée une pièce à une position avec une couleur
+        self.row = row
+        self.col = col
+        self.color = color  # 'blue' ou 'grey'
+        self.king = False
+        self.image_loader = image_loader
+        self.x = 0
+        self.y = 0
+        self.calc_pos()
+
+    # Calcule où la pièce est en pixels sur l'écran
+    def calc_pos(self):
+        self.x = SQUARE_SIZE * self.col + SQUARE_SIZE // 2
+        self.y = HEADER_HEIGHT + SQUARE_SIZE * self.row + SQUARE_SIZE // 2
+
+    # Transforme la pièce en reine (dame)
+    def make_king(self):
+        self.king = True
+
+    # Affiche la pièce sur l'écran
+    def draw(self, win):
+        image = self.image_loader.get_image(self.color, self.king)
+        if image:
+            img_rect = image.get_rect(center=(self.x, self.y))
+            win.blit(image, img_rect)
+        else:
+            # Si pas d'image, on dessine un cercle à la place
+            radius = SQUARE_SIZE // 2 - 10
+            color = (50, 50, 200) if self.color == 'blue' else (100, 100, 100)
+            pygame.draw.circle(win, GREY, (self.x, self.y), radius + 3)
+            pygame.draw.circle(win, color, (self.x, self.y), radius)
+            if self.king:
+                font = pygame.font.SysFont('arial', 20, bold=True)
+                crown = font.render('R', True, WHITE)
+                win.blit(crown, (self.x - crown.get_width() // 2, self.y - crown.get_height() // 2))
+
+    # Bouge la pièce vers une nouvelle case
+    def move(self, row, col):
+        self.row = row
+        self.col = col
+        self.calc_pos()
+
+    # Utile pour voir la pièce à l'écran (debug)
+    def __repr__(self):
+        return f"Piece({self.row}, {self.col}, {self.color}, king={self.king})"
+
+
+class Board:
+    """Gère le plateau et les pièces"""
+    def __init__(self, image_loader):
+        # Crée le plateau au début
+        self.board = []
+        self.grey_left = self.blue_left = 20  # 20 pièces de chaque côté
+        self.grey_kings = self.blue_kings = 0
+        self.image_loader = image_loader
+        self.create_board()
+
+    # Dessine les cases noires et blanches
+    def draw_squares(self, win):
+        # Le plateau c'est du blanc avec des cases noires
+        win.fill(BOARD_THEME["light"])  # Fond blanc
+        for row in range(ROWS):
+            for col in range(COLS):
+                # Les cases noires
+                if (row + col) % 2 == 1:
+                    pygame.draw.rect(win, BOARD_THEME["dark"], 
+                                   (col * SQUARE_SIZE, HEADER_HEIGHT + row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE))
+
+    # Crée le plateau avec les pièces au début
+    def create_board(self):
+        self.board = []
+        self.grey_left = self.blue_left = 20
+        self.grey_kings = self.blue_kings = 0
+        
+        for row in range(ROWS):
+            self.board.append([])
+            for col in range(COLS):
+                # Les pièces vont que sur les cases noires
+                if (row + col) % 2 == 1:
+                    if row < 4:  # Bleus en haut
+                        self.board[row].append(Piece(row, col, 'blue', self.image_loader))
+                    elif row > 5:  # Gris en bas
+                        self.board[row].append(Piece(row, col, 'grey', self.image_loader))
+                    else:
+                        self.board[row].append(0)
+                else:
+                    self.board[row].append(0)
+
+    # Affiche tout le plateau et les pièces
+    def draw(self, win):
+        self.draw_squares(win)
+        for row in range(ROWS):
+            for col in range(COLS):
+                piece = self.board[row][col]
+                if piece != 0:
+                    piece.draw(win)
+
+    # Bouge une pièce et vérifie si elle devient dame
+    def move(self, piece, row, col):
+        # Echange les positions
+        self.board[piece.row][piece.col], self.board[row][col] = \
+            self.board[row][col], self.board[piece.row][piece.col]
+        piece.move(row, col)
+
+        # Vérifi si c'est une promotion en dame
+        if row == ROWS - 1 and piece.color == 'blue' and not piece.king:
+            piece.make_king()
+            self.blue_kings += 1
+        elif row == 0 and piece.color == 'grey' and not piece.king:
+            piece.make_king()
+            self.grey_kings += 1
+
+    # Retourne la pièce à une position
+    def get_piece(self, row, col):
+        if 0 <= row < ROWS and 0 <= col < COLS:
+            return self.board[row][col]
+        return None
+
+    # Enlève les pièces capturées du plateau
+    def remove(self, pieces):
+        for piece in pieces:
+            if piece != 0:
+                self.board[piece.row][piece.col] = 0
+                if piece.color == 'grey':
+                    self.grey_left -= 1
+                else:
+                    self.blue_left -= 1
+
+    # Vérifie qui a gagné
+    def winner(self):
+        if self.grey_left <= 0:
+            return "BLEU"
+        elif self.blue_left <= 0:
+            return "GRIS"
+        return None
+
+    # Retourne tous les coups possibles pour une pièce
+    def get_valid_moves(self, piece):
+        """Détermine les coups valides pour une pièce (déplacements et captures)"""
+        moves = {}  # {(row, col): [pièces capturées]}
+        
+        if piece.king:
+            # Les dames peuvent aller dans les 4 directions et loin
+            moves.update(self._get_queen_moves(piece))
+        else:
+            # Les pions se déplacent vers l'avant seulement
+            moves.update(self._get_pawn_moves(piece))
+        
+        return moves
+
+    # Calcule les coups valides pour un pion
+    def _get_pawn_moves(self, piece):
+        """Trouve les déplacements et captures possibles pour un pion"""
+        moves = {}
+        row = piece.row
+        col = piece.col
+        
+        # Cherche d'abord s'il y a des captures possibles
+        capture_moves = {}
+        for row_dir in [-1, 1]:
+            for col_dir in [-1, 1]:
+                capture_moves.update(self._pawn_find_captures(row, col, row_dir, col_dir, piece.color, []))
+        
+        # Si y a des captures, faut les faire (c'est obligatoire)
+        if capture_moves:
+            return capture_moves
+        
+        # Pas de captures, donc on bouge juste vers l'avant
+        # Gris vers le haut, Bleu vers le bas
+        forward_dir = -1 if piece.color == 'grey' else 1
+        
+        for col_dir in [-1, 1]:
+            new_row = row + forward_dir
+            new_col = col + col_dir
+            if 0 <= new_row < ROWS and 0 <= new_col < COLS:
+                if self.board[new_row][new_col] == 0:
+                    moves[(new_row, new_col)] = []
+        
+        return moves
+    
+    # Cherche récursivement les captures pour un pion
+    def _pawn_find_captures(self, start_row, start_col, row_dir, col_dir, color, already_captured):
+        """Cherche les captures en sautant par-dessus les ennemis"""
+        moves = {}
+        
+        # Regarde s'il y a un ennemi adjacent
+        enemy_row = start_row + row_dir
+        enemy_col = start_col + col_dir
+        
+        if not (0 <= enemy_row < ROWS and 0 <= enemy_col < COLS):
+            return moves
+        
+        enemy = self.board[enemy_row][enemy_col]
+        
+        # Doit être un ennemi (pas vide, pas notre couleur, pas déjà capturé)
+        if enemy == 0 or enemy.color == color or enemy in already_captured:
+            return moves
+        
+        # Vérifie la case d'atterrissage (doit être vide)
+        landing_row = enemy_row + row_dir
+        landing_col = enemy_col + col_dir
+        
+        if not (0 <= landing_row < ROWS and 0 <= landing_col < COLS):
+            return moves
+        
+        if self.board[landing_row][landing_col] != 0:
+            return moves
+        
+        # Capture valide trouvée!
+        captured_list = already_captured + [enemy]
+        moves[(landing_row, landing_col)] = captured_list
+        
+        # Cherche d'autres captures possibles (capture en chaîne)
+        for new_row_dir in [-1, 1]:
+            for new_col_dir in [-1, 1]:
+                additional_captures = self._pawn_find_captures(
+                    landing_row, landing_col, new_row_dir, new_col_dir, color, captured_list
+                )
+                for pos, caps in additional_captures.items():
+                    if pos not in moves or len(caps) > len(moves[pos]):
+                        moves[pos] = caps
+        
+        return moves
+
+    # Calcule les coups pour une dame
+    def _get_queen_moves(self, piece):
+        """Trouve les mouvements et captures possibles pour une dame"""
+        moves = {}
+        directions = [(-1, -1), (-1, 1), (1, -1), (1, 1)]
+        
+        # Cherche d'abord s'il y a des captures possibles
+        capture_moves = {}
+        for row_dir, col_dir in directions:
+            capture_moves.update(self._queen_find_captures(
+                piece.row, piece.col, row_dir, col_dir, piece.color, []
+            ))
+        
+        # Si y a des captures, faut les faire (c'est obligatoire)
+        if capture_moves:
+            return capture_moves
+        
+        # Pas de captures, donc on bouge juste normalement
+        for row_dir, col_dir in directions:
+            moves.update(self._queen_regular_moves(
+                piece.row, piece.col, row_dir, col_dir, piece.color
+            ))
+        
+        return moves
+
+    # Bouge une dame normalement (pas de capture)
+    def _queen_regular_moves(self, start_row, start_col, row_dir, col_dir, color):
+        """La dame peut se deplacer loin dans une direction en diagonale"""
+        moves = {}
+        r, c = start_row + row_dir, start_col + col_dir
+        
+        # Continue dans la diagonale jusqu'a un obstacle
+        while 0 <= r < ROWS and 0 <= c < COLS:
+            current = self.board[r][c]
+            if current == 0:
+                # Case vide, la dame peut y aller
+                moves[(r, c)] = []
+            else:
+                # Y a une piece, on s'arrete
+                break
+            r += row_dir
+            c += col_dir
+        
+        return moves
+
+    # Cherche les captures pour une dame en diagonale
+    def _queen_find_captures(self, start_row, start_col, row_dir, col_dir, color, already_captured):
+        """Cherche les captures que la dame peut faire dans une direction"""
+        moves = {}
+        r, c = start_row + row_dir, start_col + col_dir
+        enemy_to_capture = None
+        
+        # Parcourir la diagonale pour trouver un ennemi à capturer
+        while 0 <= r < ROWS and 0 <= c < COLS:
+            current = self.board[r][c]
+            
+            if current == 0:
+                # Case vide
+                if enemy_to_capture is not None:
+                    # On a trouvé un ennemi avant, on peut atterrir ici après capture
+                    captured_list = already_captured + [enemy_to_capture]
+                    moves[(r, c)] = captured_list
+                    
+                    # Depuis cette position, chercher des captures supplémentaires
+                    # Vérifier les 4 directions sauf retour en arrière
+                    for new_row_dir, new_col_dir in [(-1, -1), (-1, 1), (1, -1), (1, 1)]:
+                        # Ne pas revenir dans la direction opposée exacte
+                        if new_row_dir == -row_dir and new_col_dir == -col_dir:
+                            continue
+                        
+                        # Chercher récursivement plus de captures
+                        additional_captures = self._queen_find_captures(
+                            r, c, new_row_dir, new_col_dir, color, captured_list
+                        )
+                        
+                        # Fusionner les captures (garder celles avec plus de captures)
+                        for pos, caps in additional_captures.items():
+                            if pos not in moves or len(caps) > len(moves[pos]):
+                                moves[pos] = caps
+                # Si pas encore d'ennemi trouvé, continuer la recherche
+            
+            elif current.color == color:
+                # Pièce alliée - ne peut pas passer, arrêter la recherche
+                break
+            
+            else:
+                # Pièce ennemie trouvée (pion OU reine adverse)
+                if enemy_to_capture is not None:
+                    # Déjà trouvé un ennemi - ne peut pas sauter deux pièces d'affilée
+                    break
+                
+                # Vérifier si cette pièce a déjà été capturée dans la chaîne
+                if current in already_captured:
+                    break
+                
+                # Marquer cet ennemi comme trouvé pour capture
+                enemy_to_capture = current
+            
+            r += row_dir
+            c += col_dir
+        
+        return moves
+
+
+
+        # Change le thème du plateau (ici fixé en noir/blanc)
+        def set_theme(self, theme_index):
+            # Theme is fixed to black and white
+            pass
+
+
+class Game:
+    """
+    Contrôleur principal du jeu
+    """
+    def __init__(self, win, image_loader):
+        # Initialise le contrôleur principal du jeu (fenêtre + gestion)
+        self.win = win
+        self.image_loader = image_loader
+        self._init()
+
+    def _init(self):
+        # Initialise l'état de la partie (plateau, tour, coups valides)
+        self.selected = None
+        self.board = Board(self.image_loader)
+        self.turn = 'grey'  # Gris commence
+        self.valid_moves = {}
+        self.must_capture = False
+
+    def update(self):
+        # Met à jour l'affichage du jeu (plateau, sélection, indicateurs)
+        self.board.draw(self.win)
+        self.draw_selected()
+        self.draw_valid_moves(self.valid_moves)
+        self.draw_turn_indicator()
+        pygame.display.update()
+
+    def draw_selected(self):
+        # Met en surbrillance la pièce sélectionnée
+        if self.selected:
+            pygame.draw.rect(self.win, (255, 255, 0), 
+                           (self.selected.col * SQUARE_SIZE, HEADER_HEIGHT + self.selected.row * SQUARE_SIZE,
+                            SQUARE_SIZE, SQUARE_SIZE), 4)
+
+    def draw_turn_indicator(self):
+        # Affiche le bandeau indiquant le tour et le score
+        # Dessine le fond de l'en-tête
+        pygame.draw.rect(self.win, (40, 40, 60), (0, 0, WIDTH, HEADER_HEIGHT))
+        
+        font = pygame.font.SysFont('arial', 22, bold=True)
+        turn_text = "Tour: GRIS" if self.turn == 'grey' else "Tour: BLEU"
+        turn_color = GREY if self.turn == 'grey' else (100, 100, 255)
+        text = font.render(turn_text, True, turn_color)
+        
+        # Score
+        score_text = f"Gris: {self.board.grey_left} | Bleu: {self.board.blue_left}"
+        score = font.render(score_text, True, WHITE)
+        
+        # Centre le texte dans l'en-tête
+        self.win.blit(text, (15, 10))
+        self.win.blit(score, (15, 35))
+
+    def winner(self):
+        # Verifie qui a gagne
+        return self.board.winner()
+
+    def reset(self):
+        # Recommence une nouvelle partie
+        self._init()
+
+    def select(self, row, col):
+        # Selectionne une piece si possible
+        if self.selected:
+            result = self._move(row, col)
+            if not result:
+                self.selected = None
+                self.select(row, col)
+
+        piece = self.board.get_piece(row, col)
+        if piece != 0 and piece is not None and piece.color == self.turn:
+            self.selected = piece
+            self.valid_moves = self.board.get_valid_moves(piece)
+            return True
+
+        return False
+
+    def _move(self, row, col):
+        # Essaie de bouger la piece selectionnee
+        piece = self.board.get_piece(row, col)
+        if self.selected and (piece == 0 or piece is None) and (row, col) in self.valid_moves:
+            self.board.move(self.selected, row, col)
+            skipped = self.valid_moves[(row, col)]
+            if skipped:
+                self.board.remove(skipped)
+            self.change_turn()
+            return True
+        return False
+
+    def draw_valid_moves(self, moves):
+        # Montre les coups possibles avec des points
+        for move, skipped in moves.items():
+            row, col = move
+            color = (255, 100, 100) if skipped else GREEN  # Rouge pour les captures
+            pygame.draw.circle(self.win, color, 
+                             (col * SQUARE_SIZE + SQUARE_SIZE // 2, 
+                              HEADER_HEIGHT + row * SQUARE_SIZE + SQUARE_SIZE // 2), 12)
+
+    def change_turn(self):
+        # Passe au joueur suivant
+        self.valid_moves = {}
+        self.selected = None
+        self.turn = 'blue' if self.turn == 'grey' else 'grey'
+
+    def change_theme(self):
+        # Change le theme du plateau
+        self.board.set_theme(self.board.theme_index + 1)
+
+
+class Menu:
+    """Le menu principal du jeu"""
+    def __init__(self, win):
+        # Initialise le menu avec les polices et les boutons
+        self.win = win
+        self.font_title = pygame.font.SysFont('arial', 60, bold=True)
+        self.font_button = pygame.font.SysFont('arial', 30)
+        self.buttons = []
+        self.theme_index = 0
+        self.create_buttons()
+    
+    def create_buttons(self):
+        # Cree les boutons qu'on peut cliquer
+        button_width = 300
+        button_height = 60
+        start_y = 250
+        spacing = 100
+        
+        self.buttons = [
+            {
+                "rect": pygame.Rect(WIDTH // 2 - button_width // 2, start_y, button_width, button_height),
+                "text": "Commencer la Partie",
+                "action": "start"
+            },
+            {
+                "rect": pygame.Rect(WIDTH // 2 - button_width // 2, start_y + spacing, button_width, button_height),
+                "text": "Quitter",
+                "action": "quit"
+            }
+        ]
+    
+    def draw(self):
+        # Affiche l'ecran du menu avec titre, boutons et instructions
+        self.win.fill((40, 40, 60))
+        
+        # Titre
+        title = self.font_title.render("Jeu de Dames", True, WHITE)
+        self.win.blit(title, (WIDTH // 2 - title.get_width() // 2, 80))
+        
+        # Sous-titre
+        subtitle = pygame.font.SysFont('arial', 24).render("International (10x10)", True, GREY)
+        self.win.blit(subtitle, (WIDTH // 2 - subtitle.get_width() // 2, 150))
+        
+        # Boutons
+        mouse_pos = pygame.mouse.get_pos()
+        for button in self.buttons:
+            color = (80, 80, 120) if button["rect"].collidepoint(mouse_pos) else (60, 60, 90)
+            pygame.draw.rect(self.win, color, button["rect"], border_radius=10)
+            pygame.draw.rect(self.win, WHITE, button["rect"], 2, border_radius=10)
+            
+            text = self.font_button.render(button["text"], True, WHITE)
+            self.win.blit(text, (button["rect"].centerx - text.get_width() // 2,
+                                 button["rect"].centery - text.get_height() // 2))
+        
+        # Instructions
+        instructions = [
+            "R - Recommencer la partie",
+            "M - Retour au menu",
+            "Q - Quitter"
+        ]
+        small_font = pygame.font.SysFont('arial', 18)
+        for i, inst in enumerate(instructions):
+            text = small_font.render(inst, True, GREY)
+            self.win.blit(text, (WIDTH // 2 - text.get_width() // 2, 520 + i * 25))
+        
+        pygame.display.update()
+    
+    def handle_click(self, pos):
+        # Retourne l'action du bouton clique (ou None)
+        for button in self.buttons:
+            if button["rect"].collidepoint(pos):
+                return button["action"]
+        return None
+
+
+def get_row_col_from_mouse(pos):
+    # Convertit la position souris en numero de case
+    x, y = pos
+    row = (y - HEADER_HEIGHT) // SQUARE_SIZE
+    col = x // SQUARE_SIZE
+    return row, col
+
+
+def show_winner(win, winner):
+    # Affiche un message central indiquant le vainqueur
+        # Affiche qui a gagne au centre de l'ecran
+    font = pygame.font.SysFont('arial', 50, bold=True)
+    color = (50, 50, 200) if winner == "BLEU" else (100, 100, 100)
+    text = font.render(f"{winner} GAGNE!", True, color)
+    # Rectangle de fond (centré sur le plateau, pas sur l'en-tête)
+    # Rectangle fond au centre
+    board_center_y = HEADER_HEIGHT + BOARD_SIZE // 2
+    rect = pygame.Rect(WIDTH // 2 - text.get_width() // 2 - 30, 
+                       board_center_y - text.get_height() // 2 - 30,
+                       text.get_width() + 60, text.get_height() + 80)
+    pygame.draw.rect(win, BLACK, rect, border_radius=15)
+    pygame.draw.rect(win, WHITE, rect, 3, border_radius=15)
+    win.blit(text, (WIDTH // 2 - text.get_width() // 2, board_center_y - text.get_height() // 2 - 10))
+    # Instruction pour recommencer
+    font_small = pygame.font.SysFont('arial', 20)
+    restart_text = font_small.render("R: Recommencer | M: Menu | Q: Quitter", True, WHITE)
+    win.blit(restart_text, (WIDTH // 2 - restart_text.get_width() // 2, board_center_y + 25))
+    pygame.display.update()
+
+
+    # Instructions
+def main():
+    # Fonction principale : initialise la fenêtre et lance la boucle du jeu
+    # Lance le jeu: initialise la fenetre et la boucle principale
+    WIN = pygame.display.set_mode((WIDTH, HEIGHT))
+    pygame.display.set_caption('Jeu de Dames - International')
+    clock = pygame.time.Clock()
+    image_loader = ImageLoader()
+    menu = Menu(WIN)
+    game = None
+    state = "menu"  # "menu" ou "game"
+    run = True
+    game_over = False
+    while run:
+        clock.tick(60)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_q:
+                    run = False
+                elif event.key == pygame.K_r and state == "game":
+                    game.reset()
+                    game_over = False
+                elif event.key == pygame.K_m and state == "game":
+                    state = "menu"
+                    game_over = False
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if state == "menu":
+                    action = menu.handle_click(event.pos)
+                    if action == "start":
+                        game = Game(WIN, image_loader)
+                        state = "game"
+                        game_over = False
+                    elif action == "quit":
+                        run = False
+                elif state == "game" and not game_over:
+                    pos = pygame.mouse.get_pos()
+                    row, col = get_row_col_from_mouse(pos)
+                    if 0 <= row < ROWS and 0 <= col < COLS:
+                        game.select(row, col)
+        if state == "menu":
+            menu.draw()
+        elif state == "game":
+            if not game_over:
+                game.update()
+                winner = game.winner()
+                if winner:
+                    game_over = True
+                    show_winner(WIN, winner)
+    pygame.quit()
+    sys.exit()
+
+# Point d'entree du programme
+if __name__ == '__main__':
+    main()
